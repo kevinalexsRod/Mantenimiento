@@ -1,38 +1,68 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-	--grey: #F1F0F6;
-	--dark-grey: #8D8D8D;
-	--light: #fff;
-	--dark: #000;
-	--green: #81D43A;
-	--light-green: #E3FFCB;
-	--blue: #1775F1;
-	--light-blue: #D0E4FF;	
-	--dark-blue: #0C5FCD;
-	--red: #FC3B56;
+	/* Palette: Indigo & Slate (Modern SaaS Look) */
+	--grey: #F8FAFC;
+	/* Surface Light */
+	--dark-grey: #64748B;
+	/* Muted Text */
+	--light: #FFFFFF;
+	/* Pure White */
+	--dark: #0F172A;
+	/* Slate 900 */
+
+	/* Branding Colors */
+	--blue: #4F46E5;
+	/* Indigo 600 - Primary */
+	--dark-blue: #4338CA;
+	/* Indigo 700 - Hover */
+	--light-blue: #E0E7FF;
+	/* Indigo 100 - Backgrounds */
+
+	/* Status Colors */
+	--green: #10B981;
+	/* Emerald 500 */
+	--light-green: #D1FAE5;
+	/* Emerald 100 */
+	--red: #EF4444;
+	/* Red 500 */
+	--accent: #F59E0B;
+	/* Amber 500 */
+
+	/* Shadows & Borders */
+	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	--border-color: #E2E8F0;
 }
 
 /*estilos generales*/
-*{
+* {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-	font-family: 'Open Sans', sans-serif;
+	font-family: 'Plus Jakarta Sans', sans-serif;
+	/* Modern Font */
 }
-a{
-    text-decoration: none;
+
+a {
+	text-decoration: none;
 }
-ul{
-    list-style: none;
+
+ul {
+	list-style: none;
 }
-input[type="checkbox"]{
-    display: none;
+
+input[type="checkbox"] {
+	display: none;
 }
+
 /*--- conf iniciales ---*/
 body {
-	padding: .5rem;
-	background: var(--grey);
+	padding: 0;
+	/* Remove padding for better layout */
+	background: #F1F5F9;
+	/* Slate 100 */
+	min-height: 100vh;
 	overflow-x: hidden;
+	color: var(--dark);
 }

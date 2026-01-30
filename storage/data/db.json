@@ -1,5 +1,32 @@
 {
-  "actives": [],
+  "products": [
+    {
+      "code": "10",
+      "name": "Teléfono Celular ",
+      "serialNumber": "1",
+      "price": "496",
+      "productProvider": "2",
+      "productCategory": "2",
+      "productBrand": "3",
+      "stock": 48,
+      "id": 1
+    },
+    {
+      "code": "2",
+      "formNumber": "2",
+      "name": "Ejemplo2",
+      "serialNumber": "2",
+      "unitaryPrice": "120",
+      "activeProvider": "2",
+      "activeCategory": "1",
+      "activeType": "2",
+      "activeBrand": "3",
+      "activeResponsible": "1",
+      "activeStatus": "1",
+      "stock": 100,
+      "id": 2
+    }
+  ],
   "typesActive": [
     {
       "name": "Monitor",
@@ -60,8 +87,8 @@
       "id": 4
     }
   ],
-  "persons": [],
-  "typesPerson": [
+  "customers": [],
+  "typesCustomer": [
     {
       "name": "Natural",
       "id": 1
@@ -71,7 +98,12 @@
       "id": 2
     }
   ],
-  "typesMovActive": [],
+  "typesMovActive": [
+    {
+      "name": "ejemplo",
+      "id": 1
+    }
+  ],
   "providers": [
     {
       "name": "LG",
@@ -88,5 +120,105 @@
       "name": "CampusLands"
     }
   ],
-  "telephones": []
+  "telephones": [],
+  "sales": [
+    {
+      "date": "2026-01-29",
+      "total": 240,
+      "items": [
+        {
+          "code": "2",
+          "formNumber": "2",
+          "name": "Ejemplo2",
+          "serialNumber": "2",
+          "unitaryPrice": "120",
+          "activeProvider": "2",
+          "activeCategory": "1",
+          "activeType": "2",
+          "activeBrand": "3",
+          "activeResponsible": "1",
+          "activeStatus": "1",
+          "id": 2,
+          "quantity": 2
+        }
+      ],
+      "customer": "Invitado",
+      "id": 1
+    },
+    {
+      "date": "2026-01-30",
+      "total": 496,
+      "items": [
+        {
+          "code": "10",
+          "name": "Teléfono Celular ",
+          "serialNumber": "1",
+          "price": "496",
+          "productProvider": "2",
+          "productCategory": "2",
+          "productBrand": "3",
+          "id": 1,
+          "quantity": 1
+        }
+      ],
+      "customer": "Cliente Registrado",
+      "id": 2
+    },
+    {
+      "date": "2026-01-30",
+      "total": 496,
+      "items": [
+        {
+          "code": "10",
+          "name": "Teléfono Celular ",
+          "serialNumber": "1",
+          "price": "496",
+          "productProvider": "2",
+          "productCategory": "2",
+          "productBrand": "3",
+          "stock": 50,
+          "id": 1,
+          "quantity": 1
+        }
+      ],
+      "customer": "Cliente Registrado",
+      "id": 3
+    },
+    {
+      "date": "2026-01-30",
+      "total": 496,
+      "items": [
+        {
+          "code": "10",
+          "name": "Teléfono Celular ",
+          "serialNumber": "1",
+          "price": "496",
+          "productProvider": "2",
+          "productCategory": "2",
+          "productBrand": "3",
+          "stock": 49,
+          "id": 1,
+          "quantity": 1
+        }
+      ],
+      "customer": "Cliente Registrado",
+      "id": 4
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "123",
+      "role": "admin",
+      "name": "Administrador Principal"
+    },
+    {
+      "id": 2,
+      "username": "cliente",
+      "password": "123",
+      "role": "buyer",
+      "name": "Cliente Registrado"
+    }
+  ]
 }

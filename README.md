@@ -163,3 +163,31 @@ La aplicación está desarrollada utilizando tecnologías web estándar como HTM
 - El archivo que contiene toda la data es `storage/data/db.json`
 - Backend prototipado haciendo uso de [json-server](https://github.com/typicode/json-server).
 - Se recomienda encarecidamente usar la version 0.17.4 ya que esta es más estable que la ultima versión.
+
+***
+
+## :hammer_and_wrench: 3. Mantenimiento del Software
+
+### 3.1 Mantenimiento Correctivo
+Este proceso se centra en la identificación, diagnóstico y corrección de errores o anomalías que se presenten durante la ejecución de la aplicación.
+*   **Corrección de Bugs en UI/UX**: Solución de problemas visuales o de interacción que impidan el uso correcto del sistema de inventarios y carrito de compras (ej. botones que no responden, cálculos incorrectos en el checkout).
+*   **Depuración de Lógica de Negocio**: Revisión y ajuste de las funciones en `cart.js`, `checkout.js` y `crud.js` para asegurar que las operaciones CRUD y transaccionales reflejen correctamente el estado del inventario.
+*   **Integridad de Datos**: Resolución de inconsistencias en la lectura/escritura del archivo `db.json` gestionado por `json-server`, asegurando que no se pierdan registros durante las peticiones asíncronas.
+
+### 3.2 Mantenimiento Adaptativo
+Modificaciones necesarias para mantener la compatibilidad del software con cambios en el entorno tecnológico o requisitos externos.
+*   **Compatibilidad de Navegadores**: Pruebas y ajustes de estilos (CSS) y scripts (ES6+) para soportar actualizaciones de motores de renderizado en Chrome, Firefox, Edge y Safari.
+*   **Actualización de Librerías y Herramientas**: Migración o actualización de dependencias como `json-server` (actualmente v0.17.4) a versiones más recientes, asegurando que los scripts del `package.json` sigan funcionando.
+*   **Nuevas Regulaciones**: Adaptación de los formularios de datos (ej. en `dataForm.js`) para cumplir con nuevas normativas de captura de información o privacidad de datos si fuese requerido.
+
+### 3.3 Mantenimiento Perfectivo
+Mejoras enfocadas en elevar la calidad, rendimiento y experiencia de usuario sin alterar la funcionalidad esencial.
+*   **Optimización de Rendimiento**: Refactorización de código crítico para reducir el tiempo de carga y mejorar la respuesta de la interfaz (ej. optimizar bucles en `menu.js` o la carga de datos en `api.js`).
+*   **Mejoras de Usabilidad**: Implementación de feedback visual más claro (toast notifications, validaciones en tiempo real) y mejoras en la accesibilidad para facilitar la navegación del usuario.
+*   **Limpieza de Código**: Eliminación de código comentado o en desuso y estandarización de nombres de variables y funciones para facilitar la lectura por parte de nuevos desarrolladores.
+
+### 3.4 Mantenimiento Preventivo
+Acciones proactivas destinadas a mejorar la mantenibilidad y fiabilidad futura del sistema, previniendo fallos antes de que ocurran.
+*   **Refactorización Modular**: Reorganización periódica de archivos grandes en módulos más pequeños y cohesivos para reducir la complejidad técnica (Deuda Técnica).
+*   **Actualización de Dependencias de Seguridad**: Monitoreo y actualización regular de paquetes npm para mitigar vulnerabilidades conocidas.
+*   **Documentación Continua**: Actualización de comentarios en el código y del archivo `README.md` para asegurar que la documentación técnica esté siempre sincronizada con la implementación actual.

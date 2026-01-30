@@ -1,508 +1,482 @@
 import { getData, postData, getDataId, deleteData, updateData } from "./api.js";
 
 const mainContainer = document.querySelector('main');
-const buttonCrud = document.querySelectorAll('.dropdown__option');
-
 /* -----------------------------------MANEJO DEL CRUD--------------------------------------- */
+// Use Event Delegation for dynamic menu items
+document.addEventListener('click', async (e) => {
+    // Traverse up to find .dropdown__option in case user clicked an icon inside it
+    const element = e.target.closest('.dropdown__option');
+    if (!element) return;
 
-// Funcion principal
-buttonCrud.forEach((element)=>{
-    element.addEventListener('click', async (e)=>{
-        mainContainer.innerHTML = ``;
-        const crudType = e.target.dataset.type; // accede al data-set que indica la opcion del crud
-        const crudItem = e.target.parentNode.dataset.item; // accede al datase de ul que indica que opcion del menu se edita
-        const crudRef = e.target.parentNode.dataset.ref; // accede al dataset de ul para referenciar sobre que obj de dataForm.js se va a iterar
-        const crudUrl = e.target.parentNode.dataset.url; // accede al dataset de ul para referenciar al endpoint al cual se debe acceder
-        let initialSettings;
-        let container;
-        switch(crudType){
-            case 'add':
-                /* Contiene la conf del section que va a contener el formulario */
-                initialSettings = ['main', 'section', 'container-form', 'register__form', `Registro de ${crudItem}`];
-                container = newContainer(initialSettings, 'form');
-                addForm(JSON.parse(crudRef),crudType, container, "required=true", crudUrl);
-                postInfo(crudUrl);
-                break;
-            case 'asignation-active':
-            case 'return':
-                if (crudType == 'return') initialSettings = ['main', 'section', 'container-crud', 'register__form', `registro de ${crudItem}`];
-                else initialSettings = ['main', 'section', 'container-crud', 'register__form', `registro de movimientos`];
-                container = newContainer(initialSettings, 'searchContainer');
-                search(crudUrl, crudType, e.target.parentNode.dataset.refmov, crudItem, container);
-                break;
-            default:
-                initialSettings = ['main', 'section', 'container-crud', 'register__form', `registro de ${crudItem}`];
-                container = newContainer(initialSettings, 'searchContainer');
-                search(crudUrl, crudType, crudRef, crudItem, container);
-                break;
-        }
-    })
-})
+    mainContainer.innerHTML = ``;
+    const crudType = element.dataset.type; // opcion del crud
 
-/*Esta funcion genera el contenido del container que NO sea de los formularios*/
-function newContainer(settings, action){
-    const [tagGlobalContainer, tagContainer, classContainer, classForm, title] = settings; /**desestructuracion */
-    const container = document.createElement(tagContainer); /*--- container ---*/
+    // Check if it's a category filter (Buyer)
+    if (crudType === 'category-filter') {
+        const categoryId = element.dataset.id;
+        const categoryName = element.dataset.name;
+
+        const initialSettings = ['main', 'section', 'container-crud', 'register__form', `Catálogo: ${categoryName}`];
+        const container = newContainer(initialSettings, 'searchContainer');
+
+        // Custom Search/Render for Category
+        // We can reuse search() or call showAllData with filter
+        // Let's use showAllData but modify the URL to filter
+        showAllData(`products?productCategory=${categoryId}`, container, null, 'Productos');
+        return;
+    }
+
+    const parentNode = element.closest('.side-menu__dropdown') || element.parentNode;
+    // fallback for safety, though structure implies ul parent
+
+    // Standard CRUD logic
+    const crudItem = parentNode.dataset.item; // opcion del menu
+    const crudRef = parentNode.dataset.ref; // objeto de dataForm.js
+    const crudUrl = parentNode.dataset.url; // endpoint al cual se debe acceder
+
+    if (!crudUrl) return; // Guard clause
+
+    let initialSettings;
+    let container;
+
+    switch (crudType) {
+        case 'add':
+            initialSettings = ['main', 'section', 'container-form', 'register__form', `Registro de ${crudItem}`];
+            container = newContainer(initialSettings, 'form');
+            addForm(JSON.parse(crudRef), crudType, container, "required=true", crudUrl);
+            postInfo(crudUrl);
+            break;
+
+        default:
+            initialSettings = ['main', 'section', 'container-crud', 'register__form', `Gestión de ${crudItem}`];
+            container = newContainer(initialSettings, 'searchContainer');
+            search(crudUrl, crudType, crudRef, crudItem, container);
+            break;
+    }
+});
+
+/* ------------------------------------CONTAINERS--------------------------------------------- */
+function newContainer(settings, action) {
+    const [tagGlobalContainer, tagContainer, classContainer, classForm, title] = settings;
+    const container = document.createElement(tagContainer);
     container.classList.add(classContainer);
     document.querySelector(tagGlobalContainer).appendChild(container);
-    switch (action){
-        case 'form': /* Si se va a renderizar un form */
-            container.innerHTML = /*HTML*/`<form class="${classForm}" id="myForm" autocomplete="off"><h2>${title}</h2></form>`;
+
+    switch (action) {
+        case 'form':
+            container.innerHTML = `<form class="${classForm}" id="myForm" autocomplete="off"><h2>${title}</h2></form>`;
             break;
-        case 'searchContainer': /* Si se va a renderizar un contenedor de busqueda */
-            container.innerHTML = /*HTML*/`
+        case 'searchContainer':
+            container.innerHTML = `
             <div class="crud__search-bar">
-                <input class="crud__search__input" type="text" name="search" placeholder="Search...">
-                <button><i class='bx bx-search' ></i></button>
-            </div>
-            `;
-            break;
-        case 'dialog': /* Si se va a renderizar un dialog */
-            container.innerHTML = /*HTML*/`
-            <button id="close__dialog"><i class='bx bx-x'></i></button>
-            <form class="${classForm}" id="myForm"><h2>${title}</h2></form>
-            `;
-            container.showModal();
-            container.querySelector('#close__dialog').addEventListener('click', ()=> {container.close()});
+                <input class="crud__search__input" type="text" name="search" placeholder="Buscar por ID o Nombre...">
+                <button><i class='bx bx-search'></i></button>
+            </div>`;
             break;
     }
     return container;
-};
+}
 
-// Renderizar formularios
-async function addForm(newForm, action, container, aditionalAtributte, endpoint, id){
-    /* Recorre el obj que representa lo que va adentro del array */
-    newForm.forEach( async (input)=>{
-        const form = container.querySelector('form'); 
+/* ------------------------------------FORMULARIOS-------------------------------------------- */
+async function addForm(newForm, action, container, aditionalAtributte, endpoint, id) {
+    if (!newForm) return;
+
+    // PERFORMANCE OPTIMIZATION: Fetch data once if editing
+    let editData = null;
+    if ((action === 'edit' || action === 'search') && id) {
+        try {
+            editData = await getData(`${endpoint}/${id}`);
+        } catch (e) {
+            console.error("Error fetching edit data:", e);
+        }
+    }
+
+    // Process inputs sequentially to ensure order, but fetch dependencies efficiently
+    // Using for...of instead of forEach to wait for async operations properly if needed,
+    // though rendering order usually matches DOM append order.
+    for (const input of newForm) {
+        const form = container.querySelector('form');
+
         switch (input.typeInput) {
-            /* Maneja los select */
-            case 'select':{
+            case 'select': {
                 const div = document.createElement('div');
                 div.innerHTML = `
-                <label for="${input.value[0]}">${input.value[1]} </label>
-                <select id="${input.value[0]}" name="${input.value[2]}" ${aditionalAtributte}></select> 
-                `;
+                    <label for="${input.value[0]}">${input.value[1]} </label>
+                    <select id="${input.value[0]}" name="${input.value[2]}" ${aditionalAtributte}></select>`;
                 form.appendChild(div);
+
                 let endpointForm;
-                /* Dependiendo del valor del dataForm, se asigna el valor del endpoint para hacer la búsqueda */
+                /* Mapeo de IDs de selects a Endpoints */
                 switch (input.value[0]) {
-                    case "category-active":
-                        endpointForm = "categories";
-                        break;
-                    case "active-type":
-                        endpointForm = "typesActive";
-                        break;
-                    case "active-status":
-                        endpointForm = "states";
-                        break;
-                    case "active-brand":
-                        endpointForm = "brands";
-                        break;
-                    case "person-type":
-                        endpointForm = "typesPerson";
-                        break;
-                    case "mov-act":
-                        endpointForm = "typesMovActive";
-                        break;
-                    case "provider-active":
-                        endpointForm = "providers";
-                        break;
-                    case "active-responsible":
-                        endpointForm = "responsibles";
-                        break;
-                    case "phone-person":
-                        endpointForm = "persons";
-                        break;
+                    case "category-product": endpointForm = "categories"; break;
+                    case "product-brand": endpointForm = "brands"; break;
+                    case "customer-type": endpointForm = "typesCustomer"; break;
+                    case "provider-product": endpointForm = "providers"; break;
+                    case "phone-owner": endpointForm = "customers"; break;
+                    case "sale-customer": endpointForm = "customers"; break;
+                    case "sale-product": endpointForm = "products"; break;
+                    case "mov-product": endpointForm = "products"; break;
                 }
-                /* Llena los select con los valores correspondientes extraídos de la base de datos */
-                const collection = await getData(endpointForm);
-                const select = document.querySelector(`#${input.value[0]}`);
-                select.innerHTML = ``;
-                select.innerHTML = `<option value="0">Seleccione una opcion...</option>`
-                for (let item of collection) {
-                    select.innerHTML += `<option value="${item.id}">${item.id} - ${item.name}</option>`;
-                }
-                if (action == 'edit'){
-                    // EDITAR
-                    /* Llena los select con los valores correspondientes extraídos de la base de datos */
-                    const collectionS = await getData(`${endpoint}/${id}`);
-                    const selection = div.querySelector(`select[name="${input.value[2]}"]`);
-                    selection.innerHTML = ``;
-                    for (let item of collection) {
-                        selection.innerHTML += `<option value="${item.id}">${item.id} - ${item.name}</option>`
+
+                if (endpointForm) {
+                    // Ideally we should cache this too, but for now we optimize editData
+                    const collection = await getData(endpointForm);
+                    const select = div.querySelector('select'); // Select specific to this div
+                    select.innerHTML = `<option value="0">Seleccione una opción...</option>`;
+
+                    if (collection && collection.length > 0) {
+                        for (let item of collection) {
+                            select.innerHTML += `<option value="${item.id}">${item.name || item.id}</option>`;
+                        }
                     }
-                    selection.value = collectionS[input.value[2]];
-                } else if (action == 'search') {
-                    // BUSCAR
-                    /* Llena los select con los valores correspondientes extraídos de la base de datos */
-                    const collectionS = await getData(`${endpoint}/${id}`);
-                    const selection = div.querySelector(`select[name="${input.value[2]}"]`);
-                    selection.innerHTML = ``;
-                    for (let item of collection) {
-                        selection.innerHTML += `<option value="${item.id}">${item.id} - ${item.name}</option>`
+
+                    // Set value if editing
+                    if (editData && editData[input.value[2]]) {
+                        select.value = editData[input.value[2]];
                     }
-                    selection.value = collectionS[input.value[2]];
                 }
-            }
-            break;
-            case 'submit':{
-                const div = document.createElement('div');                     
-                div.innerHTML = `<button for="myForm" class="register__form--submit ${action}" id= ${input.value[0]} name=${input.value[2]}></button>`
+            } break;
+
+            case 'submit': {
+                const div = document.createElement('div');
+                div.innerHTML = `<button for="myForm" class="register__form--submit ${action}" id=${input.value[0]} name=${input.value[2]}></button>`;
                 const btnSubmit = div.querySelector('button');
-                action === 'edit'? btnSubmit.textContent = 'Actualizar' : btnSubmit.textContent = input.value[1] ;
+                action === 'edit' ? btnSubmit.textContent = 'Actualizar' : btnSubmit.textContent = input.value[1];
                 form.appendChild(div);
-            } 
-            break;
-            /* Este maneja el resto de los casos como date, text, number */
-            default:{
-                const div = document.createElement('div');                     
+            } break;
+
+            default: {
+                const div = document.createElement('div');
                 div.innerHTML = `
                     <label for="${input.value[0]}">${input.value[1]}: </label>
-                    <input class="input__form" type="${input.typeInput}" id="${input.value[0]}" name="${input.value[2]}" min="0" ${aditionalAtributte}>
-                `
-                input.typeInput === 'textarea' ? div.querySelector('.input__form').style.resize = 'none' : ''; //Si es textarea el usuario no puede modificar el tamaño
+                    <input class="input__form" type="${input.typeInput}" id="${input.value[0]}" name="${input.value[2]}" min="0" ${aditionalAtributte}>`;
+                if (input.typeInput === 'textarea') div.querySelector('.input__form').style.resize = 'none';
                 form.appendChild(div);
-                if (action == 'edit'){
-                    // EDITAR
-                    /* Llena los input con el valor correspondiente extraído de la base de datos */
-                    const collection = await getData(`${endpoint}/${id}`);
-                    div.querySelector(`input[name="${input.value[2]}"]`).value = collection[input.value[2]];
-                }
-                else if (action == 'search') {
-                    // BUSCAR
-                    /* Llena los input con el valor correspondiente extraído de la base de datos */
-                    const collection = await getData(`${endpoint}/${id}`);
-                    div.querySelector(`input[name="${input.value[2]}"]`).value = collection[input.value[2]];
-                }
-            }
-            break;
-        }
-    
-    })
-};
 
-/** Funcion para hacer la busqueda */
-function search(URL, action, ref, item, container){
-    const containerBody = document.createElement('section');
-    document.querySelector('.container-crud').appendChild(containerBody);
-    container.querySelector('button').addEventListener('click', async (event)=>{
-        containerBody.innerHTML = ``
-        event.preventDefault();
-        let inputUser = container.querySelector('input').value; // Valor del input del usuario 
-        if (inputUser == "") { 
-            alert('Ingrese un ID para buscar');
-        } else {
-            if (action  == 'edit'){
-                /* Realiza la busqueda */
-                const searchResult = await getDataId(URL, inputUser);
-                if (Object.keys(searchResult).length === 0) { /* Si no existen datos en la base, se imprime el texto */
-                    containerBody.innerHTML += `<p>No se encontró</p`
-                } else {
-                    const initialSettings = ['.container-crud', 'section', 'container-form', 'register__form', `Actualizar ${item}`];
-                    const container = newContainer(initialSettings, 'form');
-                    addForm(JSON.parse(ref),'edit', container, "required=true", URL, inputUser);
-                    putInfo(URL, inputUser);
+                // Set value if editing - NOW INSTANT
+                if (editData && editData[input.value[2]]) {
+                    div.querySelector(`input[name="${input.value[2]}"]`).value = editData[input.value[2]];
                 }
-            } else {
-                showResults(URL, inputUser, action, ref, item, containerBody);
-            }
+            } break;
         }
-    })
-};
-
-// Funcion para mostrar los resultados
-async function showResults(URL, inputUser, action, ref, item, containerBody){
-    containerBody.classList.add('container-crud__body');
-    const searchResult = await getDataId(URL, inputUser);
-    if (Object.keys(searchResult).length === 0) { /* Si no existen datos en la base, se imprime el texto */
-        containerBody.innerHTML += `<p>No se encontró</p`
     }
-    else { /* Muestra el contenedor */
-        containerBody.innerHTML += `
-        <div class="crud__search-result">
-        <div class="search-result">
-            <h3 class="result-subtitle">Id</h3>
-            <p>${searchResult.id}</p> 
-        </div>                  
-        `;
-        const containerResult = document.querySelector('.crud__search-result');
-        if (searchResult.name != undefined) { /* Si existe el atributo name, se muestra */
-            containerResult.innerHTML += `
-            <div class="search-result">
-                <h3 class="result-subtitle">Nombre</h3>
-                <p>${searchResult.name}</p>                      
-            </div> 
-            `;
+}
+
+/* ------------------------------------SEARCH-------------------------------------------- */
+function search(URL, action, ref, item, container) {
+    const containerBody = document.createElement('section');
+    containerBody.classList.add('container-crud__body');
+    document.querySelector('.container-crud').appendChild(containerBody);
+
+    // Mostrar todos los datos al inicio
+    showAllData(URL, containerBody, ref, item);
+
+    container.querySelector('button').addEventListener('click', async (event) => {
+        containerBody.innerHTML = '';
+        event.preventDefault();
+        let inputUser = container.querySelector('input').value;
+
+        if (inputUser == "") {
+            showAllData(URL, containerBody, ref, item);
+        } else {
+            // Eliminamos la restricción de ID para "edit". Usamos búsqueda unificada.
+            showResults(URL, inputUser, containerBody, ref, item);
         }
-        if (URL == "telephones") { /* Si la URL pertenece a telephones, se agrega al contenedor */
-            const telephone = await getDataId(URL, searchResult.id);
-            containerResult.innerHTML += `
-            <div class="search-result">
-                <h3 class="result-subtitle">Numero</h3>
-                <p>${telephone.number}</p>
+    });
+}
+
+/* ------------------------------------MOSTRAR TODOS LOS DATOS----------------------------------- */
+/* ------------------------------------MOSTRAR TODOS LOS DATOS----------------------------------- */
+export async function showAllData(URL, containerBody, ref, item) {
+    // Show Loading Spinner
+    containerBody.innerHTML = `
+        <div style="display: flex; justify-content: center; align-items: center; height: 200px; width: 100%;">
+            <div class="loader" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+        </div>
+        <style>@keyframes spin {0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }}</style>
+    `;
+
+    console.log(`Fetching data for: ${URL}`);
+    const data = await getData(URL);
+    console.log('Data received:', data);
+
+    if (!data || data.length === 0) {
+        containerBody.innerHTML = `<p style="text-align: center; color: var(--dark-grey); margin-top: 2rem;">No existen registros en esta sección.</p>`;
+        return;
+    }
+    renderGrid(data, containerBody, ref, URL, item);
+}
+
+/* ------------------------------------DASHBOARD-------------------------------------------- */
+export async function renderDashboard(container) {
+    container.innerHTML = `
+        <h2 style="margin-bottom: 2rem; color: var(--dark);">Panel General</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                <h3 style="color: var(--dark-grey); font-size: 0.9rem; margin-bottom: 0.5rem;">Productos Totales</h3>
+                <p id="total-products" style="font-size: 2rem; font-weight: 700; color: var(--blue);">...</p>
             </div>
-            <div class="search-result">
-                <h3 class="result-subtitle">Ubicacion</h3>
-                <p>${telephone.location}</p>
-            </div> 
+            <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                <h3 style="color: var(--dark-grey); font-size: 0.9rem; margin-bottom: 0.5rem;">Alertas de Stock</h3>
+                <p id="low-stock" style="font-size: 2rem; font-weight: 700; color: var(--red);">...</p>
+            </div>
+            <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                <h3 style="color: var(--dark-grey); font-size: 0.9rem; margin-bottom: 0.5rem;">Ventas Hoy</h3>
+                <p id="sales-today" style="font-size: 2rem; font-weight: 700; color: var(--green);">...</p>
+            </div>
+        </div>
+        <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h3>Bienvenido a TechZone Store</h3>
+            <p style="color: var(--dark-grey); margin-top: 0.5rem;">Seleccione una opción del menú lateral para comenzar a gestionar su inventario.</p>
+        </div>
+    `;
+
+    // Fetch Stats
+    try {
+        const products = await getData('products');
+        const sales = await getData('sales');
+
+        const totalProducts = products.length;
+        const lowStock = products.filter(p => p.stock !== undefined && parseInt(p.stock) < 5).length; // Alert < 5
+        const today = new Date().toISOString().split('T')[0];
+        const salesToday = sales.filter(s => s.date === today).length;
+
+        container.querySelector('#total-products').textContent = totalProducts;
+        container.querySelector('#low-stock').textContent = lowStock;
+        container.querySelector('#sales-today').textContent = salesToday;
+    } catch (e) {
+        console.error("Dashboard Error", e);
+    }
+}
+
+async function showResults(URL, searchQuery, containerBody, ref, item) {
+    const data = await getData(URL);
+    const filtered = data.filter(dataItem =>
+        dataItem.id.toString().includes(searchQuery) ||
+        (dataItem.name && dataItem.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
+    if (filtered.length === 0) {
+        containerBody.innerHTML = "<p>No se encontraron resultados.</p>";
+        return;
+    }
+
+    renderGrid(filtered, containerBody, ref, URL, item);
+}
+
+// Import cart 
+import { cart } from "./cart.js";
+
+function renderGrid(data, container, formRefStr, baseUrl, itemName) {
+    container.innerHTML = '';
+    const userRole = localStorage.getItem('userRole');
+
+    // Special Rendering for Sales History (Table View)
+    if (baseUrl === 'sales') {
+        const table = document.createElement('table');
+        table.className = 'sales-table';
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.innerHTML = `
+            <thead>
+                <tr style="background-color: #f4f4f4; text-align: left;">
+                    <th style="padding: 10px; border: 1px solid #ddd;">ID Venta</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Fecha</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Cliente</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Total</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `;
+        const tbody = table.querySelector('tbody');
+
+        data.forEach(sale => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="padding: 10px; border: 1px solid #ddd;">${sale.id}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${sale.date}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${sale.customer || 'Desconocido'}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">$${Number(sale.total).toLocaleString()}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">
+                    <button class="delete-btn" data-id="${sale.id}" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+                        <i class='bx bxs-trash'></i>
+                    </button>
+                </td>
             `;
-        }
-        if (URL == "persons") { /* Si la URL pertenece a persons, se agrega al contenedor */
-            const typePerson = await getDataId(`typesPerson`, searchResult.personType);
-            containerResult.innerHTML += `
-            <div class="search-result">
-                <h3 class="result-subtitle">Tipo de persona</h3>
-                <p>${typePerson.name}</p>
-            </div> 
-            `;
-        }
-    
-        const btnCrud = document.createElement('button');
-        containerBody.querySelector('.crud__search-result').appendChild(btnCrud);
-        // El boton se cambia segun la accion que se esté haciendo, a cada addEventListener hay
-        let initialSettings;
-        switch(action){
-            case 'remove':
-                btnCrud.innerHTML = `<i class='bx bxs-trash' ></i>`;
-                /* Dependiendo de la URL, se hacen las validaciones correspondientes para evitar que se eliminen
-                elementos referenciados en otros */
-                switch (URL) {
-                    case 'actives':
-                        const currentStatus = await getDataId('states', searchResult.activeStatus);
-                        btnCrud.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            if (currentStatus.name != 'De Baja') {
-                                alert('El activo debe estar dado de baja para eliminarse');
-                            } else {
-                                deleteInfo(e, URL, inputUser);
-                            }
-                        })
-                        break;
-                    case 'persons':
-                        const tels = await getData('telephones');
-                        btnCrud.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            deleteInfo(e, URL, inputUser);
-                            for (let tel of tels) {
-                                if (tel.phoneOwner == searchResult.id) {
-                                    deleteData('telephones', tel.id);
-                                }
-                            }
-                        })
-                        break;
-                    case 'typesPerson':
-                        const persons = await getData('persons');
-                        btnCrud.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            let flag;
-                            if (Object.keys(persons).length != 0) {
-                                for (let person of persons) {
-                                    if (person.personType == searchResult.id) {
-                                        alert('No se puede eliminar un dato relacionado');
-                                        flag = true;
-                                        break;
-                                    } else {
-                                        flag = false;
-                                    }
-                                }
-                                if (flag == false) {
-                                    deleteInfo(e, URL, inputUser);
-                                }
-                            } else {
-                                deleteInfo(e, URL, inputUser);
-                            }
-                        })
-                        break;
-                    case 'typesActive':
-                        const actives = await getData('actives');
-                        btnCrud.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            let flag;
-                            if (Object.keys(actives).length != 0) {
-                                for (let active of actives) {
-                                    if (active.activeType == searchResult.id) {
-                                        alert('No se puede eliminar un dato relacionado');
-                                        flag = true;
-                                        break;
-                                    } else {
-                                        flag = false;
-                                    }
-                                }
-                                if (flag == false) {
-                                    deleteInfo(e, URL, inputUser);
-                                }
-                            } else {
-                                deleteInfo(e, URL, inputUser);
-                            }
-                        })
-                        break;
-                    case 'states':
-                        const activesS = await getData('actives');
-                        btnCrud.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            let flag;
-                            if (Object.keys(activesS).length != 0) {
-                                for (let active of activesS) {
-                                    if (active.activeStatus == searchResult.id) {
-                                        alert('No se puede eliminar un dato relacionado');
-                                        flag = true;
-                                        break;
-                                    } else {
-                                        flag = false;
-                                    }
-                                }
-                                if (flag == false) {
-                                    deleteInfo(e, URL, inputUser);
-                                }
-                            } else {
-                                deleteInfo(e, URL, inputUser);
-                            }
-                        })
-                        break;
-                    case 'brands':
-                        const activesB = await getData('actives');
-                        btnCrud.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            let flag;
-                            if (Object.keys(activesB).length != 0) {
-                                for (let active of activesB) {
-                                    if (active.activeBrand == searchResult.id) {
-                                        alert('No se puede eliminar un dato relacionado');
-                                        flag = true;
-                                        break;
-                                    } else {
-                                        flag = false;
-                                    }
-                                }
-                                if (flag == false) {
-                                    deleteInfo(e, URL, inputUser);
-                                }
-                            } else {
-                                deleteInfo(e, URL, inputUser);
-                            }
-                        })
-                        break;
-                    default:
-                        btnCrud.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            deleteInfo(e, URL, inputUser);
-                        })
-                        break;
+            // Delete Action for Sales
+            tr.querySelector('.delete-btn').addEventListener('click', () => {
+                if (confirm(`¿Eliminar venta ID ${sale.id}?`)) {
+                    deleteData(baseUrl, sale.id).then(() => {
+                        alert('Venta eliminada');
+                        location.reload();
+                    });
                 }
-                break;
-            case 'search':
-            case 'return':
-                btnCrud.innerHTML = `<i class='bx bx-detail'></i>`;
-                btnCrud.addEventListener('click', async (e) => {
-                    let refData = JSON.parse(ref);
-                    refData.pop();
-                    if (action == 'search'){
-                        initialSettings = ['body', 'dialog', 'container-form__dialog', 'register__form', `Informacion`];
-                        const container = newContainer(initialSettings, 'dialog');
-                        addForm(refData, action, container, "disabled=true", URL, inputUser);
-                    } else {
-                        initialSettings = ['.container-crud', 'section', 'container-form', 'register__form', `Informacion`];
-                        containerBody.innerHTML = ``
-                        const container = newContainer(initialSettings, 'form');
-                        addForm(refData, action, container, "disabled=true", URL, inputUser);
-                        loadAssignationButtons(container);
+            });
+            tbody.appendChild(tr);
+        });
+        container.appendChild(table);
+        return; // Exit function for Sales
+    }
+
+    // Default Grid for Products and other items
+    const grid = document.createElement('div');
+    grid.className = 'cards-grid';
+
+    data.forEach(item => {
+        const card = document.createElement('article');
+        card.className = 'product-card';
+
+        const imgUrl = item.imgUrl || 'storage/img/logo.jpg';
+
+        // Safety check for price
+        const hasPrice = item.price || item.unitaryPrice;
+        const priceDisplay = hasPrice ? Number(item.price || item.unitaryPrice).toLocaleString() : null;
+
+        const stockDisplay = (item.stock !== undefined && item.stock !== null) ? item.stock : 'N/A';
+        const isOutOfStock = parseInt(item.stock) <= 0;
+
+        let cardContent = `
+            <div class="card__image">
+                <img src="${imgUrl}" alt="${item.name || 'Item'}" onerror="this.src='storage/img/logo.jpg'">
+            </div>
+            <div class="card__content">
+                <h3 class="card__title">${item.name || 'Sin Nombre'}</h3>
+                ${priceDisplay ? `<p class="card__price">$${priceDisplay}</p>` : ''}
+                <div class="card__details">
+                    <p><strong>ID:</strong> ${item.id}</p>
+                    ${hasPrice ? `<p><strong>Stock:</strong> ${isOutOfStock ? '<span style="color:red; font-weight:bold;">Agotado</span>' : stockDisplay}</p>` : ''}
+                    ${item.code ? `<p><strong>SKU:</strong> ${item.code}</p>` : ''}
+                </div>
+        `;
+
+        // Actions
+        if (userRole === 'buyer') {
+            // Only show add to cart for products (items with price/unitaryPrice)
+            if (item.price || item.unitaryPrice) {
+                if (isOutOfStock) {
+                    cardContent += `<button class="card__btn" disabled style="background-color: #cccccc; cursor: not-allowed;">Agotado</button>`;
+                } else {
+                    cardContent += `<button class="card__btn add-to-cart" data-id="${item.id}">Añadir al Carrito</button>`;
+                }
+            }
+        } else {
+            cardContent += `
+                <div class="card__actions" style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="card__btn edit-btn" style="background-color: #ffc107; color: #000;" data-id="${item.id}"><i class='bx bxs-edit'></i> Editar</button>
+                    <button class="card__btn delete-btn" style="background-color: #dc3545;" data-id="${item.id}"><i class='bx bxs-trash'></i> Eliminar</button>
+                </div>
+            `;
+        }
+
+        cardContent += `</div>`;
+        card.innerHTML = cardContent;
+
+        // Listeners
+        if (userRole === 'buyer') {
+            const btn = card.querySelector('.add-to-cart');
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    cart.addItem(item);
+                });
+            }
+        } else {
+            const editBtn = card.querySelector('.edit-btn');
+            if (editBtn) {
+                editBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Setup Edit
+                    const main = document.querySelector('main');
+                    main.innerHTML = '';
+                    const initialSettings = ['main', 'section', 'container-form', 'register__form', `Actualizar ${itemName}`];
+                    const containerForm = newContainer(initialSettings, 'form');
+
+                    try {
+                        let schema = formRefStr;
+                        // Handle array if passed
+                        if (Array.isArray(schema)) schema = schema[0];
+                        addForm(JSON.parse(schema), 'edit', containerForm, "required=true", baseUrl, item.id);
+                        putInfo(baseUrl, item.id); // Re-use putInfo which attaches listener to #myForm
+                    } catch (err) { console.error(err); }
+                });
+            }
+
+            const deleteBtn = card.querySelector('.delete-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (confirm(`¿Eliminar ID ${item.id}?`)) {
+                        deleteData(baseUrl, item.id).then(() => {
+                            alert('Eliminado');
+                            location.reload();
+                        });
                     }
                 });
-                break;
-            case 'asignation-active':
-                initialSettings = ['.container-crud', 'section', 'container-form', 'register__form', `Informacion`];
-                containerBody.innerHTML = ``
-                const container = newContainer(initialSettings, 'form');
-                addForm(JSON.parse(ref),action, container, "disabled=true", URL, inputUser);
-                break;
-        } 
-    }  
-};
-
-// Verifica que los datos que se envíen no estén vacíos
-function checkForm(data){
-    const values = Object.values(data); 
-    for (let value of values) {
-        if (value.trim() === '' || value == "0"){
-            return false;
+            }
         }
+        grid.appendChild(card);
+    });
+    container.appendChild(grid);
+}
+
+
+/* ------------------------------------FUNCIONES CRUD--------------------------------------- */
+function postInfo(URL) {
+    // Usamos delegación de eventos o aseguramos que el listener se agregue al botón correcto
+    // Como el formulario se crea dinámicamente, esperamos un momento o usamos un observer.
+    // En este diseño simple, asumimos que el usuario llena y da click.
+
+    // NOTA: El selector '.add' no existe en el botón creado dinámicamente en addForm.
+    // El botón tiene clases: register__form--submit y "add" (pasado por parametro action)
+    // Vamos a adjuntar el listener al documento para capturar el evento submit del formulario
+
+    const form = document.querySelector('#myForm');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const datos = Object.fromEntries(formData.entries());
+
+            if (!checkForm(datos)) {
+                alert('Debe llenar todos los campos requeridos');
+                return;
+            }
+
+            postData(datos, URL).then(() => {
+                alert('Registro exitoso');
+                location.reload(); // Recargar para ver cambios
+            });
+        });
     }
-    return true;
-};
+}
 
-/* ------------------------------------ASIGNACIONES--------------------------------------------- */
+async function putInfo(url, inputUser) {
+    const form = document.querySelector('#myForm'); // El formulario creado en search->edit
+    if (form) {
+        const btn = form.querySelector('button'); // El botón de "Actualizar"
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Recopilar datos del formulario actual
+            // Nota: Al ser 'edit', el formulario ya está en el DOM
+            const inputs = form.querySelectorAll('input, select, textarea');
+            let datos = {};
+            inputs.forEach(input => {
+                if (input.name) datos[input.name] = input.value;
+            });
 
-/* Carga botones asignacion */
-function loadAssignationButtons(container){
-    const form = container.querySelector('.register__form');
-    form.innerHTML += `
-    <div>
-        <button class="register__form--submit" id="return-active">Retornar activo</button>
-        <button class="register__form--submit" id="quit-active">Dar de baja</button>
-        <button class="register__form--submit" id="send-active">Enviar a garantía</button>
-    </div>
+            if (!checkForm(datos)) alert('Debe llenar todos los campos');
+            else {
+                updateData(url, inputUser, datos).then(() => {
+                    alert('Actualización exitosa');
+                    location.reload();
+                });
+            }
+        });
+    }
+}
 
-    `
-    
-    /*RETORNAR ACTIVO*/
-    document.querySelector('#return-active').addEventListener('click', (e)=>{
-        e.preventDefault();
-    })
+function checkForm(data) {
+    return Object.values(data).every(value => value && value.toString().trim() !== '' && value != "0");
+}
 
-    /*DAR DE BAJA*/
-    document.querySelector('#quit-active').addEventListener('click', (e)=>{
-        e.preventDefault();
-    })
-
-    /*ENVIAR A GARANTIA*/
-    document.querySelector('#send-active').addEventListener('click', (e)=>{
-        e.preventDefault();
-    })
-};
-
-/* ----------------------------------FUNCIONES DEL CRUD---------------------------------------------- */
-
-// Funcion para implementar la logica del POST (actualizar elementos)
-function postInfo(URL){
-    document.querySelector('.add').addEventListener('click', (e)=>{
-        e.preventDefault();
-        const datos = Object.fromEntries(new FormData(e.target.form).entries()); //datos del formulario
-        if (URL == 'actives') {
-            datos.activeStatus = '1';
-        }
-        if (checkForm(datos) == false){
-            alert('Debe llenar todos los campos');
-        } else{
-            postData(datos, URL);
-        }
-    })
-};
-
-// Funcion para implementar la logica del PUT (registrar elementos)
-async function putInfo(url, inputUser){
-    const info = await getDataId(url, inputUser);
-    document.querySelector('.edit').addEventListener('click', (e)=>{
-        e.preventDefault();
-        const datos = Object.fromEntries(new FormData(e.target.form).entries());
-        if (url == "actives") {
-            datos.activeStatus = info.activeStatus;
-        }
-        if (checkForm(datos) == false){
-            alert('Debe llenar todos los campos');
-        } else{
-            updateData(url, inputUser, datos);
-        }
-    })
-};
-
-// Funcion para implementar la logica del DELETE (eliminar elementos)
-function deleteInfo(event, url, inputUser){
-    deleteData(url, inputUser);
-    event.preventDefault();
-};
-
-// Funcion para implementar la logica del GET (leer elementos)
-function getInfo(event, url, inputUser){
-    getDataId(url, inputUser);
-    event.preventDefault();
-};

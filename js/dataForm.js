@@ -1,134 +1,117 @@
 /*
 En este archivo se definen objetos exportados los cuales son recorridos para renderizar los inputs y los labels de cada tipo de formulario
 */
-const activeInfo = [
+const productInfo = [
     {
-        value : ["active-code", "Codigo de la transaccion", "code"], //Id que relaciona al input con el label y el texto
-        typeInput : "number",
+        value: ["product-code", "Código SKU", "code"], //Id que relaciona al input con el label y el texto
+        typeInput: "number",
     },
     {
-        value : ["active-form", "Numero de formulario", "formNumber"], //Id que relaciona al input con el label y el texto
-        typeInput : "text",
+        value: ["product-name", "Nombre del Producto", "name"], //Id que relaciona al input con el label y el texto
+        typeInput: "text",
     },
     {
-        value : ["active-name", "Nombre del activo", "name"], //Id que relaciona al input con el label y el texto
-        typeInput : "text",
+        value: ["product-serial", "Número de Serial", "serialNumber"], //Id que relaciona al input con el label y el texto
+        typeInput: "text",
     },
     {
-        value : ["active-serial", "Numero del serial", "serialNumber"], //Id que relaciona al input con el label y el texto
-        typeInput : "text",
+        value: ["product-value", "Precio de Venta", "price"], //Id que relaciona al input con el label y el texto
+        typeInput: "number",
     },
     {
-        value : ["active-value", "Valor Unitario", "unitaryPrice"], //Id que relaciona al input con el label y el texto
-        typeInput : "number",
+        value: ["product-stock", "Cantidad en Stock", "stock"],
+        typeInput: "number",
     },
     {
-        value : ["provider-active", "Proveedor", "activeProvider"], 
-        typeInput : "select",
+        value: ["provider-product", "Proveedor", "productProvider"],
+        typeInput: "select",
     },
     {
-        value : ["category-active", "Categoria del activo", "activeCategory"], 
-        typeInput : "select",
+        value: ["category-product", "Categoría", "productCategory"],
+        typeInput: "select",
     },
     {
-        value : ["active-type", "Tipo del activo", "activeType"], 
-        typeInput : "select",
-    },
-    // {
-        // value : ["active-status", "Estado del activo", "activeStatus"], 
-        // typeInput : "select",
-    // },
-    {
-        value : ["active-brand", "Marca del activo", "activeBrand"], 
-        typeInput : "select",
+        value: ["product-brand", "Marca", "productBrand"],
+        typeInput: "select",
     },
     {
-        value : ["active-responsible", "Responsable del activo", "activeResponsible"], 
-        typeInput : "select",
-    },
-    {
-        value: ["add-active-id", "registrar Activo", "actives"],
-        typeInput : "submit",
+        value: ["add-product-id", "Registrar Producto", "products"],
+        typeInput: "submit",
     }
 ];
 
-/*--- informacion de persona ---*/
-const personInfo = [
+/*--- informacion de cliente ---*/
+const customerInfo = [
     {
-        value : ["person-identification", "Identificacion", "identificationNumber"],
-        typeInput : "number"
+        value: ["customer-identification", "Identificación (DNI/NIT)", "identificationNumber"],
+        typeInput: "number"
     },
     {
-        value : ["person-name", "Nombre", "name"],
-        typeInput : "text"
+        value: ["customer-name", "Nombre Completo", "name"],
+        typeInput: "text"
     },
     {
-        value : ["person-email", "Email", "email"],
-        typeInput : 'email'
+        value: ["customer-email", "Correo Electrónico", "email"],
+        typeInput: 'email'
     },
     {
-        value : ["person-type", "Tipo de persona", "personType"],
-        typeInput : 'select'
+        value: ["customer-type", "Tipo de Cliente", "customerType"],
+        typeInput: 'select'
     },
-    {value : ["add-person", "Nueva persona", "persons"], typeInput: 'submit'}
+    { value: ["add-customer", "Registrar Cliente", "customers"], typeInput: 'submit' }
 ];
 
 const brandInfo = [
-    {value : ["brand", "Nombre", "name"], typeInput : 'text'},
-    {value : ["add-brand", "Nueva marca", "brands"], typeInput: 'submit'}
+    { value: ["brand", "Nombre de Marca", "name"], typeInput: 'text' },
+    { value: ["add-brand", "Nueva Marca", "brands"], typeInput: 'submit' }
 ];
 
-const personTypeInfo = [
-    {value : ["person-type", "Nombre", "name"], typeInput : 'text'},
-    {value : ["add-person-type", "Nuevo tipo de persona", "typesPerson"], typeInput: 'submit'}
+const customerTypeInfo = [
+    { value: ["customer-type", "Descripción del Tipo", "name"], typeInput: 'text' },
+    { value: ["add-customer-type", "Nuevo Tipo de Cliente", "typesCustomer"], typeInput: 'submit' }
 ];
 
-const movTypeInfo = [
-    {value : ["movement-type", "Nombre","name"], typeInput : 'text'},
-    {value : ["add-movement-type", "Nuevo tipo de movimiento", "typesMovActive"], typeInput: 'submit'}
-];
-
-const actTypeInfo = [
-    {value : ["active-type", "Nombre", "name"], typeInput : 'text'},
-    {value : ["add-active-type", "Nuevo tipo de activo", "typesActive"], typeInput: 'submit'}
+const categoryInfo = [
+    { value: ["category-name", "Nombre Categoría", "name"], typeInput: 'text' },
+    { value: ["add-category", "Nueva Categoría", "categories"], typeInput: 'submit' }
 ];
 
 const statusInfo = [
-    {value : ["status", "Nombre", "name"], typeInput : 'text'},
-    {value : ["add-status", "Nuevo estado", "states"], typeInput: 'submit'}
+    { value: ["status", "Estado", "name"], typeInput: 'text' },
+    { value: ["add-status", "Nuevo Estado", "states"], typeInput: 'submit' }
 ];
 
 const phoneInfo = [
-    {value : ["phone-number", "Numero", "number"], typeInput: 'number'},
-    {value : ["phone-location", "Ubicacion", "location"], typeInput: 'text'},
-    {value : ["phone-person", "Dueño del telefono", "phoneOwner"], typeInput: 'select'},
-    {value : ["add-phone", "Nuevo telefono", "telephones"], typeInput: 'submit'}
+    { value: ["phone-number", "Número Telefónico", "number"], typeInput: 'number' },
+    { value: ["phone-location", "Ubicación / Ciudad", "location"], typeInput: 'text' },
+    { value: ["phone-owner", "Cliente / Dueño", "phoneOwner"], typeInput: 'select' },
+    { value: ["add-phone", "Registrar Teléfono", "telephones"], typeInput: 'submit' }
 ];
 
+// Movimientos de inventario (Entradas/Salidas)
 const movInfo = [
-    {value : ["date-mov", "Fecha"], typeInput: 'date'},
-    {value : ["mov-act","Id del activo"], typeInput : 'select'},
-    {value : ["mov-comment","comentario"], typeInput : 'textarea'},
-    {value : ["mov-responsible", "Id de la persona responsable"], typeInput: 'number'},
-    {value : ["add-mov", "agregar movimiento"], typeInput: 'submit'}
+    { value: ["date-mov", "Fecha Movimiento"], typeInput: 'date' },
+    { value: ["mov-product", "Producto"], typeInput: 'select' },
+    { value: ["mov-type", "Tipo de Movimiento"], typeInput: 'select' },
+    { value: ["mov-comment", "Observaciones"], typeInput: 'textarea' },
+    { value: ["add-mov", "Registrar Movimiento"], typeInput: 'submit' }
 ];
 
-const asignationInfo = [
-    {value : ["asignation-date", "Fecha", "asignationDate"], typeInput: 'date'},
-    {value : ["asignation-res","Responsable", "asignationResposible"], typeInput : 'select'},
-    {value : ["add-asignation", "Nueva asignacion"], typeInput: 'submit'}
-
+const salesInfo = [
+    { value: ["sale-date", "Fecha de Venta", "saleDate"], typeInput: 'date' },
+    { value: ["sale-customer", "Cliente", "saleCustomer"], typeInput: 'select' },
+    { value: ["sale-product", "Producto", "saleProduct"], typeInput: 'select' },
+    { value: ["add-sale", "Realizar Venta"], typeInput: 'submit' }
 ];
 
 export {
-    activeInfo,
-    personInfo,
+    productInfo,
+    customerInfo,
     brandInfo,
-    personTypeInfo,
-    movTypeInfo,
-    actTypeInfo,
+    customerTypeInfo,
+    categoryInfo,
     statusInfo,
     phoneInfo,
     movInfo,
-    asignationInfo
+    salesInfo
 }

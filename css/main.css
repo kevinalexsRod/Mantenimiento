@@ -1,144 +1,312 @@
-@import url('variables.css'); /*conf general*/
-@import url('form.css'); /*estilos de los formularios*/
-@import url('crud.css'); /*estilos del crud*/
+@import url('variables.css');
+/* Conf general */
+@import url('form.css');
+/* Estilos de formularios */
+@import url('crud.css');
+/* Estilos del CRUD */
 @import url('asignation.css');
+/* Estilos de asignación */
+@import url('modal.css');
+/* Estilos de Modal */
+@import url('cards.css');
+/* Estilos de Tarjetas */
 
-
-/* ----SIDEBAR ----*/
-#sidebar{
+/* --------------------- SIDEBAR --------------------- */
+/* --------------------- SIDEBAR --------------------- */
+#sidebar {
     position: fixed;
-    top: 110px;
-	left: 0;
-    height: calc(100vh - 130px);
-	max-width: 260px;   
-	width: 100%;
-	background: var(--light);
-	scrollbar-width: none;
-	transition: all .3s ease;
-	z-index: 200;
-	overflow-y: scroll;
+    top: 100px;
+    /* Slight adjustment */
+    left: 0;
+    height: calc(100vh - 120px);
+    width: 260px;
+    background: var(--dark);
+    /* Dark Theme */
+    overflow-y: auto;
     padding: 1rem;
-    border-radius: 1rem;
-    box-shadow: 16px 16px 16px rgba(0, 0, 0, .05);
+    border-radius: 0 1rem 1rem 0;
+    /* Rounded only on right */
+    box-shadow: 4px 8px 20px rgba(0, 0, 0, 0.15);
+    transition: width 0.3s ease, transform 0.3s ease;
+    z-index: 200;
+    color: var(--grey);
 }
+
 #sidebar::-webkit-scrollbar {
-	display: none;
-}
-/*estilos de los elementos internos del menu*/
-.side-menu__subtitle,
-.dropdown__option{
-	display: flex;
-    justify-content: space-between;
-	align-items: center;
-	font-size: 1rem;
-	color: var(--dark);
-	padding: 1rem;
-	transition: all .3s ease;
-	border-radius: 10px;
-	margin: 4px 0;
-    gap: 1rem;
-    cursor: pointer;
-}
-.dropdown__option:hover{
-    background-color: var(--light-green);
-}
-
-.side-menu__subtitle i{
-    font-size: 1.5rem;
-    transition:  ease .3s;
-}
-/*-- logica del dropdown ---*/
-
-/*oculta menu crud*/
-.side-menu__dropdown{
     display: none;
-    transition:  ease .3s;
- 
 }
-/*rota la flechita*/
-.side-menu li input[type="checkbox"]:checked + .side-menu__subtitle .side-menu__arrow {
-    transform: rotate(90deg);
+
+/* Elementos internos */
+.side-menu__subtitle,
+.dropdown__option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #CBD5E1;
+    /* Slate 300 */
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    margin: 4px 0;
+    gap: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
 }
-.side-menu li input[type="checkbox"]:checked + .side-menu__subtitle{
-    background-color: var(--blue);
+
+.dropdown__option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
     color: var(--light);
 }
-/*muestra el menu*/
-.side-menu li input[type="checkbox"]:checked ~ .side-menu__dropdown {
-   display: block;
+
+/* Iconos del menú */
+.side-menu__subtitle i {
+    font-size: 1.3rem;
+    transition: transform 0.3s ease;
+    color: var(--blue);
+    /* Accent color for icons */
 }
+
+/* Dropdown logic */
+.side-menu__dropdown {
+    display: none;
+    margin-left: 10px;
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+    padding-left: 5px;
+}
+
+.side-menu li input[type="checkbox"]:checked+.side-menu__subtitle .side-menu__arrow {
+    transform: rotate(90deg);
+}
+
+.side-menu li input[type="checkbox"]:checked+.side-menu__subtitle {
+    background-color: var(--blue);
+    color: var(--light);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.side-menu li input[type="checkbox"]:checked~.side-menu__dropdown {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hover sidebar expand */
 .sidebar:hover,
-#drop-menu:checked ~ .sidebar{
-    width: 500px;
+#drop-menu:checked~.sidebar {
+    width: 320px;
 }
 
-
-/*----- estilos del header -----*/
-header{
+/* --------------------- HEADER --------------------- */
+header {
     position: fixed;
+    top: 0;
     width: 100%;
+    height: 90px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    /* Better spacing */
     gap: 1rem;
-    padding: 1rem;
-    height: 90px;
+    padding: 0 1.5rem;
     background-color: var(--light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     z-index: 100;
-    box-shadow: 16px 16px 16px rgba(0, 0, 0, .05);
 }
-.header__icon{
-    font-size: 2.5rem;
+
+.header-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.2;
+}
+
+.header-text h1 {
+    font-size: 1.8rem;
+    color: var(--dark);
+    margin: 0;
+}
+
+.header-text h4 {
+    font-size: 0.85rem;
+    color: var(--dark-grey);
+    font-weight: 400;
+    margin: 0;
+    max-width: 600px;
+    text-align: center;
     display: none;
+    /* Hide on small screens initially, show on large */
+}
+
+@media (min-width: 1024px) {
+    .header-text h4 {
+        display: block;
+    }
+}
+
+.header__icon {
+    display: none;
+    font-size: 2.2rem;
     color: var(--blue);
     position: absolute;
-    top:1.5rem;
+    top: 1.5rem;
     right: 1rem;
+    cursor: pointer;
+    transition: transform 0.3s ease;
 }
-header  img{
-    height : 90px;
+
+.header__icon:hover {
+    transform: scale(1.1);
+}
+
+header img {
+    height: 70px;
     width: 100px;
+    object-fit: contain;
 }
-h1{
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    color: var(--dark-grey);
+    cursor: pointer;
+    position: relative;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.icon-btn:hover {
+    color: var(--accent);
+}
+
+#cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--red);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    display: none;
+    /* JS will toggle */
+}
+
+.logout-btn {
+    background-color: transparent;
+    border: 2px solid var(--red);
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+}
+
+.logout-btn:hover {
+    background-color: var(--red);
+    color: var(--light);
+}
+
+h1 {
+    flex: 1;
     text-align: center;
-
+    font-size: 1.6rem;
+    color: var(--dark);
+    font-weight: 600;
 }
 
-/*---- MAIN ---*/
-main{
+/* --------------------- MAIN --------------------- */
+main {
     position: absolute;
     top: 120px;
-    left: 300px;
-    width: calc(100vw - 320px);
+    left: 260px;
+    width: calc(100vw - 280px);
+    padding: 1rem;
+    transition: left 0.3s ease, width 0.3s ease;
 }
-/*--- RESPONSIVE ---*/
-@media (max-width: 600px){ 
-    /*--- header ---*/
 
-    h1{
-        font-size: 1.2rem;
+/* --------------------- RESPONSIVE --------------------- */
+@media (max-width: 900px) {
+    main {
+        left: 0;
+        width: 100%;
     }
-    .header__icon{
+
+    #sidebar {
+        transform: translateX(-280px);
+        width: 260px;
+    }
+
+    #drop-sidebar:checked~#sidebar {
+        transform: translateX(0);
+    }
+
+    .header__icon {
         display: block;
     }
 
-    /*--nav ---*/
-    #sidebar{
-        transform: translateX(-500px);
-        transition: transform ease .6s;
-    
+    h1 {
+        font-size: 1.3rem;
     }
-    #drop-sidebar:checked ~ #sidebar{
-        transform: translateX(0);
-    } 
 
-    /*--- contenido ---*/
-    main{
-        left: 1rem;
-    }
-    header > img{
-        height : 60px;
+    header img {
+        height: 60px;
         width: 60px;
     }
 }
 
+/* --------------------- BOTONES / INTERACTIVOS --------------------- */
+button,
+.register__form--submit {
+    background-color: var(--blue);
+    color: var(--light);
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
 
+button:hover,
+.register__form--submit:hover {
+    background-color: var(--light-green);
+    color: var(--dark);
+}
+
+input,
+select,
+textarea {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.95rem;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+    outline: none;
+}

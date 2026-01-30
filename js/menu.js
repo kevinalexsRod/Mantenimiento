@@ -1,17 +1,16 @@
 //Importar objs que van a ser ingresados dentro del dataset
-import { activeInfo, personInfo, brandInfo, personTypeInfo, movTypeInfo, actTypeInfo, statusInfo, asignationInfo, movInfo, phoneInfo} from './dataForm.js';
+import { productInfo, customerInfo, brandInfo, customerTypeInfo, categoryInfo, statusInfo, salesInfo, movInfo, phoneInfo } from './dataForm.js';
+import { getData } from './api.js';
 
 /**Opciones del menu */
 const menuData = [
-    {title: "Activos", idDrop : "menu-active" ,icon : "bx bxs-package", infoForm : JSON.stringify(activeInfo), url: "actives"},
-    {title: "Tipo de activos", idDrop : "menu-active-type" ,icon : "bx bx-pin", infoForm : JSON.stringify(actTypeInfo), url: "typesActive"},
-    {title: "Tipo movimiento del activo", idDrop : "menu-mov-active" ,icon : "bx bxs-component", infoForm : JSON.stringify(movTypeInfo), url : "typesMovActive"},
-    {title: "Estados", idDrop : "menu-status" ,icon : "bx bx-error", infoForm : JSON.stringify(statusInfo), url : "states"},
-    {title: "Marcas", idDrop : "menu-brands" ,icon : "bx bxs-bar-chart-alt-2", infoForm : JSON.stringify(brandInfo), url : "brands"},
-    {title: "Personas", idDrop : "menu-person" ,icon : "bx bxs-user", infoForm : JSON.stringify(personInfo), url : "persons"},
-    {title: "Tipo de personas", idDrop : "menu-person-type" ,icon : "bx bxs-user-detail", infoForm : JSON.stringify(personTypeInfo), url : "typesPerson"},
-    {title: "Teléfonos", idDrop : "menu-telephones" ,icon : "bx bxs-phone", infoForm : JSON.stringify(phoneInfo), url : "telephones"},
-    {title: "Asignaciones", idDrop : "menu-asignations" ,icon : "bx bxs-plus-square", infoForm : [JSON.stringify(asignationInfo), JSON.stringify(movInfo)], url : "asignations"},
+    { title: "Productos Tecnológicos", idDrop: "menu-products", icon: "bx bxs-package", infoForm: JSON.stringify(productInfo), url: "products" },
+    { title: "Categorías", idDrop: "menu-categories", icon: "bx bx-category", infoForm: JSON.stringify(categoryInfo), url: "categories" },
+    { title: "Marcas / Fabricantes", idDrop: "menu-brands", icon: "bx bxs-badge-check", infoForm: JSON.stringify(brandInfo), url: "brands" },
+    { title: "Clientes", idDrop: "menu-customers", icon: "bx bxs-user", infoForm: JSON.stringify(customerInfo), url: "customers" },
+    { title: "Tipos de Cliente", idDrop: "menu-customer-types", icon: "bx bxs-id-card", infoForm: JSON.stringify(customerTypeInfo), url: "typesCustomer" },
+    { title: "Teléfonos", idDrop: "menu-telephones", icon: "bx bxs-phone", infoForm: JSON.stringify(phoneInfo), url: "telephones" },
+    { title: "Ventas", idDrop: "menu-sales", icon: "bx bxs-cart", infoForm: [JSON.stringify(salesInfo), JSON.stringify(movInfo)], url: "sales" },
 ]
 /*--- ceracion dinamica de la cabecera ---*/
 /*---- creacion de contenedores----*/
@@ -31,39 +30,90 @@ const ul = document.createElement('ul');
 ul.setAttribute('class', 'side-menu');
 nav.appendChild(ul);
 
-//Construcccion del menu
-menuData.forEach((element) =>{
-    const menuOption = document.createElement('li');
-    menuOption.innerHTML = `
-        <input type="checkbox" id="${element.idDrop}">
-        <label class="side-menu__subtitle" for="${element.idDrop}">
-            <i class="${element.icon}" ></i> 
-            <p>${element.title}</p>
-            <i class='bx bx-chevron-right icon-right side-menu__arrow' ></i>
-        </label>
-           
-    `
-    if (element.title === 'Asignaciones'){
-        menuOption.innerHTML += `
-        <ul class="side-menu__dropdown" data-url= "${element.url}" data-item="${element.title}" data-ref='${element.infoForm[0]}' data-refmov ='${element.infoForm[1]}' id="testing">
-            <li class="dropdown__option"  data-type="add">Agregar</li>
-            <li class="dropdown__option"  data-type="return">Retornar activo activo</li>
-            <li class="dropdown__option"  data-type="asignation-active">Asignar activo</li>
-        </ul> 
-        `
+const userRole = localStorage.getItem('userRole') || 'admin';
 
-    }else{
-        menuOption.innerHTML += `
-        <ul class="side-menu__dropdown" data-url= "${element.url}" data-item="${element.title}" data-ref='${element.infoForm}' id="testing">
-            <li class="dropdown__option"  data-type="add">Agregar</li>
-            <li class="dropdown__option"  data-type="remove">Eliminar</li>
-            <li class="dropdown__option" data-type="edit">Editar</li>
-            <li class="dropdown__option" data-type="search">Buscar</li>
-        </ul> 
-        `
+// Filter Menu for Buyer
+let filteredMenu = menuData;
+if (userRole === 'buyer') {
+    filteredMenu = menuData.filter(item => item.url === 'products');
+}
+
+// ASYNC Function to build menu
+async function buildMenu() {
+    for (const element of filteredMenu) {
+        const menuOption = document.createElement('li');
+        // Dropdown Header
+        menuOption.innerHTML = `
+            <input type="checkbox" id="${element.idDrop}">
+            <label class="side-menu__subtitle" for="${element.idDrop}">
+                <i class="${element.icon}" ></i> 
+                <p>${element.title}</p>
+                <i class='bx bx-chevron-right icon-right side-menu__arrow' ></i>
+            </label>`;
+
+        // Dropdown Content
+        let dropdownContent = '';
+
+        if (userRole === 'buyer') {
+            // Buyer sees Categories
+            try {
+                const categories = await getData('categories');
+                let catList = '';
+                if (categories && categories.length > 0) {
+                    categories.forEach(cat => {
+                        catList += `<li class="dropdown__option" data-type="category-filter" data-id="${cat.id}" data-name="${cat.name}">${cat.name}</li>`;
+                    });
+                } else {
+                    catList = `<li class="dropdown__option" data-type="search">Ver Todo</li>`;
+                }
+
+                dropdownContent = `
+                <ul class="side-menu__dropdown" data-url="${element.url}" data-item="${element.title}" data-ref='${element.infoForm}' id="testing">
+                    <li class="dropdown__option" data-type="search" style="font-weight:bold; border-bottom:1px solid #eee;">Ver Todo</li>
+                    ${catList}
+                </ul>`;
+            } catch (e) {
+                console.error("Error fetching categories for menu", e);
+                dropdownContent = `
+                <ul class="side-menu__dropdown" data-url="${element.url}">
+                    <li class="dropdown__option" data-type="search">Ver Catálogo</li>
+                </ul>`;
+            }
+
+        } else {
+            // Admin sees all options
+            if (element.title === 'Ventas') {
+                dropdownContent = `
+                <ul class="side-menu__dropdown" data-url= "${element.url}" data-item="${element.title}" data-ref='${element.infoForm[0]}' data-refmov ='${element.infoForm[1]}' id="testing">
+                    <li class="dropdown__option"  data-type="add">Nueva Venta</li>
+                    <li class="dropdown__option"  data-type="search">Historial Ventas</li>
+                </ul>`;
+            } else {
+                dropdownContent = `
+                <ul class="side-menu__dropdown" data-url= "${element.url}" data-item="${element.title}" data-ref='${element.infoForm}' id="testing">
+                    <li class="dropdown__option"  data-type="add">Agregar</li>
+                    <li class="dropdown__option" data-type="search">Buscar/Gestionar</li>
+                </ul>`;
+            }
+        }
+
+        menuOption.innerHTML += dropdownContent;
+        ul.appendChild(menuOption);
     }
-    ul.appendChild(menuOption);
 
-})
+    // Accordion Logic (Once elements are added)
+    const menuCheckboxes = document.querySelectorAll('.side-menu input[type="checkbox"]');
+    menuCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            if (this.checked) {
+                menuCheckboxes.forEach(other => {
+                    if (other !== this) other.checked = false;
+                });
+            }
+        });
+    });
+}
+
+buildMenu();
 mainContainer.append(nav);
 
