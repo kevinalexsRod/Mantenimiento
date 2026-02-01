@@ -44,52 +44,46 @@ export function initCheckout() {
         checkoutBtn.addEventListener('click', async () => {
             if (cart.items.length === 0) return alert('El carrito está vacío');
 
-            // Identify User
-            // Since we don't have a robust session storage, we can fetch the user by role or store the username on login.
-            // For now, let's look up the user who has the 'userRole' if possible, or defaulting.
-            // A better way is to store 'currentUser' in localStorage on login.
+            // 1. Restricción para Invitados
+            const isGuest = localStorage.getItem('isGuest') === 'true';
+            if (isGuest) {
+                alert('Los invitados solo pueden ver los productos. Por favor, inicia sesión para realizar una compra.');
+                return;
+            }
 
-            // Assuming we added logic to store 'username' in localStorage or we just fetch 'users' and match 'userRole'?
-            // Matching 'userRole' is ambiguous if multiple users have same role.
-            // Let's assume 'Invitado' if no explicit login, or the role name for now, but ideally we want the Name.
-            // Let's fetch the users to find the name if we had the username.
-
-            // To fix this properly, let's check if there is a way to know WHO is logged in.
-            // I'll grab the username from a new localStorage item 'currentUsername' if it exists.
-
-            let customerName = 'Invitado';
+            // 2. Identificar Usuario base si existe
+            let baseName = 'Cliente';
             const currentUsername = localStorage.getItem('currentUsername');
+
+            const { getData, postData, updateData } = await import('./api.js');
 
             if (currentUsername) {
                 try {
-                    // Import getData dynamic fix or assume it is available? 
-                    // It is better to use the imported postData... we need getData.
-                    // checkout.js imports postData. Let's add getData import.
-                    const { getData } = await import('./api.js');
                     const users = await getData('users');
                     const user = users.find(u => u.username === currentUsername);
-                    if (user) customerName = user.name;
+                    if (user) baseName = user.name || user.username;
                 } catch (e) {
                     console.error("Error fetching user info", e);
                 }
             }
 
-            // Simular pago y guardar venta
-            const saleData = {
-                date: new Date().toISOString().split('T')[0],
-                total: cart.getTotal(),
-                items: cart.items,
-                customer: customerName
-            };
+            // 3. Pedir Nombre y Teléfono OBLIGATORIAMENTE
+            const finalCustomerName = prompt("Ingrese el nombre completo para el registro de la venta:", baseName);
+            if (!finalCustomerName || finalCustomerName.trim() === "") {
+                alert("El nombre es obligatorio para procesar el pago.");
+                return;
+            }
 
-            // Process Stock Updates using imported api functions
-            const { getData, postData, updateData } = await import('./api.js');
+            const finalCustomerPhone = prompt("Ingrese su número de teléfono:");
+            if (!finalCustomerPhone || finalCustomerPhone.trim() === "") {
+                alert("El número de teléfono es obligatorio para procesar el pago.");
+                return;
+            }
 
             try {
                 // Verify Stock Availability First
                 let stockError = null;
                 for (const item of cart.items) {
-                    // Check current stock from DB to be safe
                     const product = await getData(`products/${item.id}`);
                     const currentStock = parseInt(product.stock || 0);
                     if (currentStock < item.quantity) {
@@ -103,41 +97,31 @@ export function initCheckout() {
                     return;
                 }
 
-                // Billing Name Prompt
-                const billingName = prompt("Ingrese el nombre para la factura:", customerName);
-                if (billingName === null) return; // User cancelled
+                // Auto-save/Update Customer in DB
+                try {
+                    const customers = await getData('customers');
+                    const exists = customers.find(c => c.name && c.name.toLowerCase() === finalCustomerName.trim().toLowerCase());
 
-                // Use the entered name (or default if they just hit enter, prompt returns string)
-                const finalCustomerName = billingName.trim() || customerName;
-
-                // Auto-save Customer if not exists and valid name
-                if (finalCustomerName !== 'Invitado' && finalCustomerName !== 'Cliente Registrado') {
-                    const currentPhone = localStorage.getItem('currentUserPhone') || 'N/A';
-                    try {
-                        const customers = await getData('customers');
-                        const exists = customers.find(c => c.name && c.name.toLowerCase() === finalCustomerName.toLowerCase());
-
-                        if (!exists) {
-                            const newCustomer = {
-                                name: finalCustomerName,
-                                identificationNumber: "N/A",
-                                email: "no-email@registered.com",
-                                phone: currentPhone,
-                                customerType: "1"
-                            };
-                            await postData(newCustomer, 'customers');
-                        }
-                    } catch (err) {
-                        console.error("Error auto-saving customer:", err);
+                    if (!exists) {
+                        const newCustomer = {
+                            name: finalCustomerName.trim(),
+                            identificationNumber: "N/A",
+                            email: "no-email@registered.com",
+                            phone: finalCustomerPhone.trim(),
+                            customerType: "1"
+                        };
+                        await postData(newCustomer, 'customers');
                     }
+                } catch (err) {
+                    console.error("Error saving customer info:", err);
                 }
 
                 const saleData = {
                     date: new Date().toISOString().split('T')[0],
                     total: cart.getTotal(),
                     items: cart.items,
-                    customer: finalCustomerName,
-                    phone: localStorage.getItem('currentUserPhone') || 'N/A'
+                    customer: finalCustomerName.trim(),
+                    phone: finalCustomerPhone.trim()
                 };
 
                 // Proceed to checkout
