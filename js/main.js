@@ -5,6 +5,20 @@ import { getData } from "./api.js";
 
 // Role Logic
 window.setRole = function (role) {
+    // Si entra por el botón "Mirar como invitado", marcamos como guest
+    if (role === 'buyer' && !localStorage.getItem('currentUsername')) {
+        localStorage.setItem('isGuest', 'true');
+        localStorage.setItem('userRole', role);
+        document.getElementById('role-modal').classList.add('hidden');
+        location.reload();
+        return;
+    }
+
+    // Si ya hay un usuario (viniendo de login), no es guest
+    if (localStorage.getItem('currentUsername')) {
+        localStorage.setItem('isGuest', 'false');
+    }
+
     localStorage.setItem('userRole', role);
     document.getElementById('role-modal').classList.add('hidden');
     location.reload(); // Reload to apply changes in menu.js
@@ -59,6 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             localStorage.removeItem('userRole');
+            localStorage.removeItem('currentUsername');
+            localStorage.removeItem('currentUserPhone');
+            localStorage.removeItem('isGuest');
             location.reload();
         });
     }
@@ -79,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (validUser) {
                     localStorage.setItem('currentUsername', validUser.username);
+                    localStorage.setItem('isGuest', 'false');
                     setRole(validUser.role);
                 } else {
                     errorMsg.classList.remove('hidden');

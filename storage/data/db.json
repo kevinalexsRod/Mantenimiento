@@ -8,8 +8,8 @@
       "productProvider": "2",
       "productCategory": "2",
       "productBrand": "3",
-      "stock": 48,
-      "id": 1
+      "stock": 46,
+      "id": "1"
     },
     {
       "code": "2",
@@ -24,99 +24,225 @@
       "activeResponsible": "1",
       "activeStatus": "1",
       "stock": 100,
-      "id": 2
+      "id": "2"
+    },
+    {
+      "code": "101",
+      "name": "Laptop Pro 15",
+      "serialNumber": "LP15-001",
+      "price": "1200",
+      "productProvider": "1",
+      "productCategory": "1",
+      "productBrand": "1",
+      "stock": 15,
+      "id": "3"
+    },
+    {
+      "code": "102",
+      "name": "Mouse Gamer RGB",
+      "serialNumber": "MG-789",
+      "price": "45",
+      "productProvider": "2",
+      "productCategory": "3",
+      "productBrand": "3",
+      "stock": 50,
+      "id": "4"
+    },
+    {
+      "code": "103",
+      "name": "Monitor 4K 27\"",
+      "serialNumber": "MON27-UHD",
+      "price": "350",
+      "productProvider": "1",
+      "productCategory": "1",
+      "productBrand": "1",
+      "stock": 8,
+      "id": "5"
+    },
+    {
+      "code": "104",
+      "name": "Teclado Mecánico",
+      "serialNumber": "TM-800",
+      "price": "85",
+      "productProvider": "2",
+      "productCategory": "1",
+      "productBrand": "3",
+      "stock": 25,
+      "id": "6"
+    },
+    {
+      "code": "105",
+      "name": "Auriculares Pro",
+      "serialNumber": "AP-202",
+      "price": "120",
+      "productProvider": "2",
+      "productCategory": "1",
+      "productBrand": "2",
+      "stock": 40,
+      "id": "7"
+    },
+    {
+      "code": "106",
+      "name": "SSD 1TB",
+      "serialNumber": "SSD-1T-EVO",
+      "price": "95",
+      "productProvider": "1",
+      "productCategory": "1",
+      "productBrand": "2",
+      "stock": 60,
+      "id": "8"
+    },
+    {
+      "code": "107",
+      "name": "GPU RTX 4070",
+      "serialNumber": "NV-4070-X",
+      "price": "650",
+      "productProvider": "2",
+      "productCategory": "1",
+      "productBrand": "3",
+      "stock": 5,
+      "id": "9"
+    },
+    {
+      "code": "108",
+      "name": "Mesa Escritorio Gamer",
+      "serialNumber": "EG-2024",
+      "price": "180",
+      "productProvider": "2",
+      "productCategory": "2",
+      "productBrand": "4",
+      "stock": 12,
+      "id": "10"
+    },
+    {
+      "code": "109",
+      "name": "Webcam 1080p",
+      "serialNumber": "WC-HD-01",
+      "price": "55",
+      "productProvider": "1",
+      "productCategory": "1",
+      "productBrand": "3",
+      "stock": 30,
+      "id": "11"
+    },
+    {
+      "code": "110",
+      "name": "Silla Ergonómica",
+      "serialNumber": "SE-PRO",
+      "price": "220",
+      "productProvider": "2",
+      "productCategory": "2",
+      "productBrand": "1",
+      "stock": 10,
+      "id": "12"
     }
   ],
   "typesActive": [
     {
       "name": "Monitor",
-      "id": 1
+      "id": "1"
     },
     {
       "name": "CPU",
-      "id": 2
+      "id": "2"
     },
     {
       "name": "Teclado",
-      "id": 3
+      "id": "3"
     }
   ],
   "categories": [
     {
       "name": "Equipo de Cómputo",
-      "id": 1
+      "id": "1"
     },
     {
       "name": "Electrodomestico",
-      "id": 2
+      "id": "2"
     },
     {
       "name": "Juego",
-      "id": 3
+      "id": "3"
     }
   ],
   "states": [
     {
       "name": "No Asignado",
-      "id": 1
+      "id": "1"
     },
     {
       "name": "Asignado",
-      "id": 2
+      "id": "2"
     },
     {
       "name": "De Baja",
-      "id": 3
+      "id": "3"
     }
   ],
   "brands": [
     {
       "name": "LG",
-      "id": 1
+      "id": "1"
     },
     {
       "name": "COMPUMAX",
-      "id": 2
+      "id": "2"
     },
     {
       "name": "LOGITECH",
-      "id": 3
+      "id": "3"
     },
     {
       "name": "BENQ",
-      "id": 4
+      "id": "4"
     }
   ],
-  "customers": [],
+  "customers": [
+    {
+      "id": "7634",
+      "name": "Kevin",
+      "identificationNumber": "N/A",
+      "email": "no-email@registered.com",
+      "customerType": "1"
+    },
+    {
+      "id": "53be",
+      "name": "alex",
+      "identificationNumber": "N/A",
+      "email": "no-email@registered.com",
+      "phone": "N/A",
+      "customerType": "1"
+    }
+  ],
   "typesCustomer": [
     {
       "name": "Natural",
-      "id": 1
+      "id": "1"
     },
     {
       "name": "Juridica",
-      "id": 2
+      "id": "2"
     }
   ],
   "typesMovActive": [
     {
       "name": "ejemplo",
-      "id": 1
+      "id": "1"
     }
   ],
   "providers": [
     {
       "name": "LG",
-      "id": 1
+      "id": "1"
     },
     {
       "name": "COMPUMAX",
-      "id": 2
+      "id": "2"
     }
   ],
   "responsibles": [
     {
-      "id": 1,
+      "id": "1",
       "name": "CampusLands"
     }
   ],
@@ -143,7 +269,7 @@
         }
       ],
       "customer": "Invitado",
-      "id": 1
+      "id": "1"
     },
     {
       "date": "2026-01-30",
@@ -162,7 +288,7 @@
         }
       ],
       "customer": "Cliente Registrado",
-      "id": 2
+      "id": "2"
     },
     {
       "date": "2026-01-30",
@@ -182,7 +308,7 @@
         }
       ],
       "customer": "Cliente Registrado",
-      "id": 3
+      "id": "3"
     },
     {
       "date": "2026-01-30",
@@ -202,19 +328,60 @@
         }
       ],
       "customer": "Cliente Registrado",
-      "id": 4
+      "id": "4"
+    },
+    {
+      "id": "ff35",
+      "date": "2026-02-01",
+      "total": 496,
+      "items": [
+        {
+          "code": "10",
+          "name": "Teléfono Celular ",
+          "serialNumber": "1",
+          "price": "496",
+          "productProvider": "2",
+          "productCategory": "2",
+          "productBrand": "3",
+          "stock": 48,
+          "id": "1",
+          "quantity": 1
+        }
+      ],
+      "customer": "Kevin"
+    },
+    {
+      "id": "dce6",
+      "date": "2026-02-01",
+      "total": 496,
+      "items": [
+        {
+          "code": "10",
+          "name": "Teléfono Celular ",
+          "serialNumber": "1",
+          "price": "496",
+          "productProvider": "2",
+          "productCategory": "2",
+          "productBrand": "3",
+          "stock": 47,
+          "id": "1",
+          "quantity": 1
+        }
+      ],
+      "customer": "alex",
+      "phone": "N/A"
     }
   ],
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "username": "admin",
       "password": "123",
       "role": "admin",
       "name": "Administrador Principal"
     },
     {
-      "id": 2,
+      "id": "2",
       "username": "cliente",
       "password": "123",
       "role": "buyer",

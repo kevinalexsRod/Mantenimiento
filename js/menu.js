@@ -1,5 +1,5 @@
 //Importar objs que van a ser ingresados dentro del dataset
-import { productInfo, customerInfo, brandInfo, customerTypeInfo, categoryInfo, statusInfo, salesInfo, movInfo, phoneInfo } from './dataForm.js';
+import { productInfo, customerInfo, brandInfo, customerTypeInfo, categoryInfo, statusInfo, salesInfo, movInfo } from './dataForm.js';
 import { getData } from './api.js';
 
 /**Opciones del menu */
@@ -9,7 +9,6 @@ const menuData = [
     { title: "Marcas / Fabricantes", idDrop: "menu-brands", icon: "bx bxs-badge-check", infoForm: JSON.stringify(brandInfo), url: "brands" },
     { title: "Clientes", idDrop: "menu-customers", icon: "bx bxs-user", infoForm: JSON.stringify(customerInfo), url: "customers" },
     { title: "Tipos de Cliente", idDrop: "menu-customer-types", icon: "bx bxs-id-card", infoForm: JSON.stringify(customerTypeInfo), url: "typesCustomer" },
-    { title: "Teléfonos", idDrop: "menu-telephones", icon: "bx bxs-phone", infoForm: JSON.stringify(phoneInfo), url: "telephones" },
     { title: "Ventas", idDrop: "menu-sales", icon: "bx bxs-cart", infoForm: [JSON.stringify(salesInfo), JSON.stringify(movInfo)], url: "sales" },
 ]
 /*--- ceracion dinamica de la cabecera ---*/

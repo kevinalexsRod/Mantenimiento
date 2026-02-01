@@ -112,8 +112,7 @@ export function initCheckout() {
 
                 // Auto-save Customer if not exists and valid name
                 if (finalCustomerName !== 'Invitado' && finalCustomerName !== 'Cliente Registrado') {
-                    // Basic check to avoid saving generic names if possible, or just save everything distinct.
-                    // Let's fetch customers to check existence.
+                    const currentPhone = localStorage.getItem('currentUserPhone') || 'N/A';
                     try {
                         const customers = await getData('customers');
                         const exists = customers.find(c => c.name && c.name.toLowerCase() === finalCustomerName.toLowerCase());
@@ -121,12 +120,12 @@ export function initCheckout() {
                         if (!exists) {
                             const newCustomer = {
                                 name: finalCustomerName,
-                                identificationNumber: "N/A", // Placeholder
-                                email: "no-email@registered.com", // Placeholder
-                                customerType: "1" // Default type
+                                identificationNumber: "N/A",
+                                email: "no-email@registered.com",
+                                phone: currentPhone,
+                                customerType: "1"
                             };
                             await postData(newCustomer, 'customers');
-                            console.log(`New customer registered: ${finalCustomerName}`);
                         }
                     } catch (err) {
                         console.error("Error auto-saving customer:", err);
@@ -137,7 +136,8 @@ export function initCheckout() {
                     date: new Date().toISOString().split('T')[0],
                     total: cart.getTotal(),
                     items: cart.items,
-                    customer: finalCustomerName
+                    customer: finalCustomerName,
+                    phone: localStorage.getItem('currentUserPhone') || 'N/A'
                 };
 
                 // Proceed to checkout
