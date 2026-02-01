@@ -207,10 +207,26 @@
     },
     {
       "id": "53be",
-      "name": "alex",
+      "name": "Alex",
       "identificationNumber": "N/A",
       "email": "no-email@registered.com",
-      "phone": "N/A",
+      "phone": "3124567890",
+      "customerType": "1"
+    },
+    {
+      "id": "c101",
+      "name": "Maria Garcia",
+      "identificationNumber": "10203040",
+      "email": "maria@example.com",
+      "phone": "3001234567",
+      "customerType": "1"
+    },
+    {
+      "id": "c102",
+      "name": "Juan Perez",
+      "identificationNumber": "50607080",
+      "email": "juan@example.com",
+      "phone": "3159876543",
       "customerType": "1"
     }
   ],
@@ -268,7 +284,8 @@
           "quantity": 2
         }
       ],
-      "customer": "Invitado",
+      "customer": "Jose Rodriguez",
+      "phone": "3105551234",
       "id": "1"
     },
     {
@@ -287,7 +304,8 @@
           "quantity": 1
         }
       ],
-      "customer": "Cliente Registrado",
+      "customer": "Maria Garcia",
+      "phone": "3001234567",
       "id": "2"
     },
     {
@@ -307,7 +325,8 @@
           "quantity": 1
         }
       ],
-      "customer": "Cliente Registrado",
+      "customer": "Juan Perez",
+      "phone": "3159876543",
       "id": "3"
     },
     {
@@ -327,7 +346,8 @@
           "quantity": 1
         }
       ],
-      "customer": "Cliente Registrado",
+      "customer": "Carlos Ruiz",
+      "phone": "3201112233",
       "id": "4"
     },
     {
@@ -348,7 +368,8 @@
           "quantity": 1
         }
       ],
-      "customer": "Kevin"
+      "customer": "Kevin Sanchez",
+      "phone": "3014445566"
     },
     {
       "id": "dce6",
@@ -368,8 +389,8 @@
           "quantity": 1
         }
       ],
-      "customer": "alex",
-      "phone": "N/A"
+      "customer": "Alex Brown",
+      "phone": "3124567890"
     }
   ],
   "users": [

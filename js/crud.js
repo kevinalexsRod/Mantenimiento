@@ -299,11 +299,22 @@ function renderGrid(data, container, formRefStr, baseUrl, itemName) {
                 <td style="padding: 10px; border: 1px solid #ddd;">${sale.customer || 'Desconocido'}</td>
                 <td style="padding: 10px; border: 1px solid #ddd;">$${Number(sale.total).toLocaleString()}</td>
                 <td style="padding: 10px; border: 1px solid #ddd;">
-                    <button class="delete-btn" data-id="${sale.id}" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">
-                        <i class='bx bxs-trash'></i>
-                    </button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="view-invoice-btn" data-id="${sale.id}" title="Ver Factura" style="background-color: var(--blue); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">
+                            <i class='bx bxs-file-pdf'></i>
+                        </button>
+                        <button class="delete-btn" data-id="${sale.id}" title="Eliminar" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">
+                            <i class='bx bxs-trash'></i>
+                        </button>
+                    </div>
                 </td>
             `;
+            // Delete Action for Sales
+            // View Invoice Action
+            tr.querySelector('.view-invoice-btn').addEventListener('click', () => {
+                showInvoceDetail(sale);
+            });
+
             // Delete Action for Sales
             tr.querySelector('.delete-btn').addEventListener('click', () => {
                 if (confirm(`¿Eliminar venta ID ${sale.id}?`)) {
@@ -478,5 +489,91 @@ async function putInfo(url, inputUser) {
 
 function checkForm(data) {
     return Object.values(data).every(value => value && value.toString().trim() !== '' && value != "0");
+}
+
+/* ------------------------------------DETALLE DE FACTURA-------------------------------------------- */
+function showInvoceDetail(sale) {
+    // Crear el overlay del modal si no existe
+    let modalOverlay = document.getElementById('invoice-modal');
+    if (!modalOverlay) {
+        modalOverlay = document.createElement('div');
+        modalOverlay.id = 'invoice-modal';
+        modalOverlay.className = 'modal-overlay';
+        document.body.appendChild(modalOverlay);
+    }
+
+    const itemsHTML = sale.items.map(item => `
+        <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 12px 0;">
+                <div style="font-weight: 600;">${item.name}</div>
+                <div style="font-size: 0.8rem; color: #667085;">SKU: ${item.code || 'N/A'}</div>
+            </td>
+            <td style="padding: 12px 0; text-align: center;">${item.quantity}</td>
+            <td style="padding: 12px 0; text-align: right;">$${Number(item.price || item.unitaryPrice).toLocaleString()}</td>
+            <td style="padding: 12px 0; text-align: right; font-weight: 600;">$${(Number(item.price || item.unitaryPrice) * item.quantity).toLocaleString()}</td>
+        </tr>
+    `).join('');
+
+    modalOverlay.innerHTML = `
+        <div class="modal-content" style="max-width: 600px; padding: 40px; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
+                <div>
+                    <h2 style="margin: 0; color: var(--dark); font-size: 1.8rem;">FACTURA</h2>
+                    <p style="margin: 5px 0 0 0; color: var(--blue); font-weight: 700; letter-spacing: 1px;"># ${sale.id}</p>
+                </div>
+                <div style="text-align: right;">
+                    <img src="storage/img/logo.jpg" alt="Logo" style="height: 50px; margin-bottom: 10px;">
+                    <div style="font-size: 0.85rem; color: var(--dark-grey);">TechZone Store S.A.</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; padding: 20px; background: #f8fafc; border-radius: 12px;">
+                <div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--dark-grey); font-weight: 700; margin-bottom: 5px;">Facturar a:</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--dark);">${sale.customer}</div>
+                    <div style="font-size: 0.9rem; color: var(--dark-grey); margin-top: 2px;">Tel: ${sale.phone || 'N/A'}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--dark-grey); font-weight: 700; margin-bottom: 5px;">Fecha:</div>
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--dark);">${sale.date}</div>
+                </div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--dark); text-align: left; font-size: 0.8rem; text-transform: uppercase; color: var(--dark-grey);">
+                        <th style="padding-bottom: 10px;">Producto</th>
+                        <th style="padding-bottom: 10px; text-align: center;">Cant.</th>
+                        <th style="padding-bottom: 10px; text-align: right;">Precio</th>
+                        <th style="padding-bottom: 10px; text-align: right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsHTML}
+                </tbody>
+            </table>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
+                <div style="width: 250px;">
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid var(--dark);">
+                        <span style="font-weight: 800; font-size: 1.2rem;">TOTAL</span>
+                        <span style="font-weight: 800; font-size: 1.5rem; color: var(--blue);">$${Number(sale.total).toLocaleString()}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; text-align: center;">
+                <button id="close-invoice" class="register__form--submit" style="width: 100%; padding: 15px; font-weight: 700;">CERAR DETALLE</button>
+            </div>
+        </div>
+    `;
+
+    modalOverlay.classList.remove('hidden');
+    modalOverlay.style.display = 'flex';
+
+    document.getElementById('close-invoice').addEventListener('click', () => {
+        modalOverlay.style.display = 'none';
+        modalOverlay.classList.add('hidden');
+    });
 }
 
